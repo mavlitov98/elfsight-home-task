@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+    php:
+        build:
+            context: ./docker/php
+        container_name: symfony_php
+        working_dir: /var/www
+        user: 1000:1000
+        volumes:
+            - ./:/var/www
+            - ./var/composer:/var/www/var/composer
+        environment:
+            COMPOSER_HOME: /var/www/var/composer
+            XDEBUG_CONFIG: client_host=${DOCKER_GATEWAY_HOST:-host.docker.internal}
+            PHP_IDE_CONFIG: serverName=symfony
+        env_file:
+            - .env
+
+    nginx:
+        container_name: symfony_nginx
+        image: nginx:latest
+        volumes:
+            - ./:/var/www
+            - ./docker/nginx/config:/etc/nginx/templates
+            - ./docker/nginx/logs:/var/log/nginx
+        ports:
+            - '8081:80'
+            - '4434:443'
+        depends_on:
+            - php
+        env_file:
+            - .env
+
+    db:
+        image: postgres:latest
+        container_name: symfony_postgres
+        environment:
+            POSTGRES_USER: root
+            POSTGRES_PASSWORD: root
+            POSTGRES_DB: test
+        volumes:
+            - ./var/postgres-data:/var/lib/postgresql/data
+        ports:
+            - "54322:5432"
+        restart: always
+        healthcheck:
+            test: pg_isready -U root -d test -p 5432
+            interval: 5s
+            timeout: 5s
+            retries: 10
+        networks:
+            - symfony_network
+
+    redis:
+        image: redis:alpine
+        container_name: symfony_redis
+        networks:
+            - symfony_network
+        ports:
+            - "6379:6379"
+
+volumes:
+    db_data:
+
+networks:
+    symfony_network:
+        driver: bridge
