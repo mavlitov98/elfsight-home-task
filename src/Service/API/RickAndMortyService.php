@@ -5,10 +5,15 @@ declare(strict_types=1);
 namespace App\Service\API;
 
 use GuzzleHttp\ClientInterface;
+use GuzzleHttp\RequestOptions;
+use RuntimeException;
+use Throwable;
 
 final readonly class RickAndMortyService
 {
-    private const BASE_URI = 'https://rickandmortyapi.com';
+    private const URL = 'https://rickandmortyapi.com/api/episode';
+    private const DEFAULT_PAGE_COUNT = 1;
+    private const HTTP_OK = 200;
 
     public function __construct(
         private ClientInterface $guzzle,
@@ -16,32 +21,71 @@ final readonly class RickAndMortyService
     }
 
     /**
-     * @return list<array{id: int, name: string, date: string}>
+     * @return array<array{id: int, name: string, date: string}>
      */
     public function getAllEpisodes(): array
     {
-        $response = $this->guzzle->request('GET', self::BASE_URI . '/api/episode');
+        try {
+            $totalPages = $this->getTotalPagesCount();
+            $episodes = [];
 
-        if (200 !== $response->getStatusCode()) {
+            for ($page = 1; $page <= $totalPages; $page++) {
+                $episodes = [...$episodes, ...$this->getEpisodesByPage($page)];
+            }
+
+            return $episodes;
+        } catch (Throwable $e) {
+            throw new RuntimeException('Failed to fetch episodes: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * @return array<array{id: int, name: string, date: string}>
+     */
+    private function getEpisodesByPage(int $page): array
+    {
+        $response = $this->guzzle->request('GET', self::URL, [
+            RequestOptions::QUERY => ['page' => $page],
+        ]);
+
+        if (self::HTTP_OK !== $response->getStatusCode()) {
             return [];
         }
 
-        $bodyDecoded = json_decode((string) $response->getBody(), true);
+        $bodyDecoded = json_decode(
+            json: (string)$response->getBody(),
+            associative: true,
+            flags: JSON_THROW_ON_ERROR,
+        );
 
-        if (!array_key_exists('results', $bodyDecoded) || empty($bodyDecoded['results'])) {
+        if (empty($bodyDecoded['results'] ?? [])) {
             return [];
         }
 
-        $result = [];
-
-        foreach ($bodyDecoded['results'] as $episode) {
-            $result[] = [
+        return array_map(
+            static fn(array $episode): array => [
                 'id' => $episode['id'],
                 'name' => $episode['name'],
                 'date' => $episode['air_date'],
-            ];
+            ],
+            $bodyDecoded['results']
+        );
+    }
+
+    private function getTotalPagesCount(): int
+    {
+        $response = $this->guzzle->request('GET', self::URL);
+
+        if (self::HTTP_OK !== $response->getStatusCode()) {
+            return self::DEFAULT_PAGE_COUNT;
         }
 
-        return $result;
+        $bodyDecoded = json_decode(
+            json: (string)$response->getBody(),
+            associative: true,
+            flags: JSON_THROW_ON_ERROR,
+        );
+
+        return $bodyDecoded['info']['pages'] ?? self::DEFAULT_PAGE_COUNT;
     }
 }

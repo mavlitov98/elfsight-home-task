@@ -6,5 +6,8 @@ namespace App\Service\Episode;
 
 interface EpisodeServiceInterface
 {
+    /**
+     * @return list<EpisodeResponse>
+     */
     public function getAll(): array;
 }
