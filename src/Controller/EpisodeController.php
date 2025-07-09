@@ -1,0 +1,26 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Controller;
+
+use App\Service\Episode\EpisodeServiceInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Routing\Attribute\Route;
+
+final class EpisodeController extends AbstractController
+{
+    public function __construct(
+        private readonly EpisodeServiceInterface $episodeService,
+    ) {
+    }
+
+    #[Route(path: '/episode/all', methods: ['GET'])]
+    public function getAllEpisodes(): JsonResponse
+    {
+        $episodes = $this->episodeService->getAll();
+
+        return $this->json($episodes);
+    }
+}
