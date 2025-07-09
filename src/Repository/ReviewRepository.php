@@ -20,4 +20,10 @@ class ReviewRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Review::class);
     }
+
+    public function save(Review $review): void
+    {
+        $this->getEntityManager()->persist($review);
+        $this->getEntityManager()->flush();
+    }
 }

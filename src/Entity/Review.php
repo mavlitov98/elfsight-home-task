@@ -11,12 +11,12 @@ use App\Repository\ReviewRepository;
 #[ORM\Entity(repositoryClass: ReviewRepository::class)]
 class Review
 {
-    public function __construct(
-        #[ORM\Id]
-        #[ORM\GeneratedValue]
-        #[ORM\Column(type: 'integer')]
-        public int $id,
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
+    private ?int $id = null;
 
+    public function __construct(
         #[ORM\ManyToOne(targetEntity: Episode::class)]
         #[ORM\JoinColumn(nullable: false)]
         public Episode $episode,
@@ -30,5 +30,10 @@ class Review
         #[ORM\Column(type: 'datetime_immutable')]
         public DateTimeImmutable $createdAt,
     ) {
+    }
+
+    public function getId(): int
+    {
+        return $this->id;
     }
 }

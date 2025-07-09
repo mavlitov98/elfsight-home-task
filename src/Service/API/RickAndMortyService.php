@@ -68,7 +68,7 @@ final readonly class RickAndMortyService
                 'name' => $episode['name'],
                 'date' => $episode['air_date'],
             ],
-            $bodyDecoded['results']
+            $bodyDecoded['results'],
         );
     }
 
