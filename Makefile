@@ -1,8 +1,11 @@
 first-init:
 	make up
 	make composer-install
+	make create-db
+	make migrations-run
 	make fetch-episodes
 	make codeception-build
+	make codeception-run
 
 up:
 	docker-compose up -d --build
@@ -15,6 +18,12 @@ clear-cache:
 
 fetch-episodes:
 	docker-compose exec php bin/console cli:episodes:fetch
+
+create-db:
+	docker-compose exec php bin/console doctrine:database:create
+
+migrations-run:
+	docker-compose exec php bin/console doctrine:migrations:migrate --no-interaction
 
 psalm:
 	docker-compose exec php ./vendor/bin/psalm
