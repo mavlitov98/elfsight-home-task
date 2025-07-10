@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Infrastructure\Service;
+namespace App\Infrastructure\Service\RickAndMorty;
 
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\RequestOptions;
@@ -29,13 +29,13 @@ final readonly class RickAndMortyService
             $totalPages = $this->getTotalPagesCount();
             $episodes = [];
 
-            for ($page = 1; $page <= $totalPages; $page++) {
+            for ($page = 1; $page <= $totalPages; ++$page) {
                 $episodes = [...$episodes, ...$this->getEpisodesByPage($page)];
             }
 
             return $episodes;
         } catch (Throwable $e) {
-            throw new RuntimeException('Failed to fetch episodes: ' . $e->getMessage());
+            throw new RuntimeException('Failed to fetch episodes: '.$e->getMessage());
         }
     }
 
@@ -52,8 +52,15 @@ final readonly class RickAndMortyService
             return [];
         }
 
+        /** @var array{
+         *     results: list<array{
+         *       id: int,
+         *       name: string,
+         *       air_date: string
+         *     }>
+         * } $bodyDecoded */
         $bodyDecoded = json_decode(
-            json: (string)$response->getBody(),
+            json: (string) $response->getBody(),
             associative: true,
             flags: JSON_THROW_ON_ERROR,
         );
@@ -63,7 +70,7 @@ final readonly class RickAndMortyService
         }
 
         return array_map(
-            static fn(array $episode): array => [
+            static fn (array $episode): array => [
                 'id' => $episode['id'],
                 'name' => $episode['name'],
                 'date' => $episode['air_date'],
@@ -80,8 +87,9 @@ final readonly class RickAndMortyService
             return self::DEFAULT_PAGE_COUNT;
         }
 
+        /** @var array{info: array{pages: int}} $bodyDecoded */
         $bodyDecoded = json_decode(
-            json: (string)$response->getBody(),
+            json: (string) $response->getBody(),
             associative: true,
             flags: JSON_THROW_ON_ERROR,
         );

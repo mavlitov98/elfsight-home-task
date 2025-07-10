@@ -15,7 +15,7 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method Episode[]    findAll()
  * @method Episode[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class EpisodeRepository extends ServiceEntityRepository implements EpisodeRepositoryInterface
+final class EpisodeRepository extends ServiceEntityRepository implements EpisodeRepositoryInterface
 {
     public function __construct(ManagerRegistry $registry)
     {

@@ -9,6 +9,11 @@ use App\Infrastructure\Persistence\ReviewRepository;
 use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
 
+use function assert;
+
+/**
+ * @psalm-suppress ClassMustBeFinal
+ */
 #[ORM\Entity(repositoryClass: ReviewRepository::class)]
 class Review
 {
@@ -35,6 +40,8 @@ class Review
 
     public function getId(): int
     {
+        assert(null !== $this->id);
+
         return $this->id;
     }
 }

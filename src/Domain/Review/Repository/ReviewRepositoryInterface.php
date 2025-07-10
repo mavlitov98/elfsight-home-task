@@ -13,5 +13,8 @@ interface ReviewRepositoryInterface
 
     public function findByEpisode(Episode $episode): array;
 
+    /**
+     * @return list<Review>
+     */
     public function findLastN(Episode $episode, int $limit): array;
 }

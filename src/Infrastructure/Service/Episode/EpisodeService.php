@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace App\Infrastructure\Service\Episode;
 
 use App\Domain\Episode\Service\EpisodeServiceInterface;
-use App\Infrastructure\Service\RickAndMortyService;
+use App\Infrastructure\Service\RickAndMorty\RickAndMortyService;
+use Override;
 
 final readonly class EpisodeService implements EpisodeServiceInterface
 {
@@ -17,6 +18,7 @@ final readonly class EpisodeService implements EpisodeServiceInterface
     /**
      * @return list<array{id: int, name: string, date: string}>
      */
+    #[Override]
     public function fetchAll(): array
     {
         return $this->rickAndMortyService->getAllEpisodes();

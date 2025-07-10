@@ -16,5 +16,8 @@ interface EpisodeRepositoryInterface
 
     public function getById(int $id): ?Episode;
 
+    /**
+     * @return list<Episode>
+     */
     public function getAll(): array;
 }

@@ -10,12 +10,13 @@ use App\Domain\Episode\Repository\EpisodeRepositoryInterface;
 use App\Domain\Review\Entity\Review;
 use App\Domain\Review\Repository\ReviewRepositoryInterface;
 
-class GetEpisodeSummaryUseCase
+final readonly class GetEpisodeSummaryUseCase
 {
     public function __construct(
-        private readonly EpisodeRepositoryInterface $episodeRepository,
-        private readonly ReviewRepositoryInterface $reviewRepository,
-    ) {}
+        private EpisodeRepositoryInterface $episodeRepository,
+        private ReviewRepositoryInterface $reviewRepository,
+    ) {
+    }
 
     public function execute(int $episodeId): ?EpisodeSummaryResponse
     {
@@ -28,7 +29,7 @@ class GetEpisodeSummaryUseCase
         $reviews = $this->reviewRepository->findByEpisode($episode);
 
         $avg = count($reviews) > 0
-            ? round(array_sum(array_map(fn($r) => $r->sentimentScore, $reviews)) / count($reviews), 3)
+            ? round(array_sum(array_map(fn (Review $r) => $r->sentimentScore, $reviews)) / ((float) count($reviews)), 3)
             : null;
 
         $lastReviews = $this->reviewRepository->findLastN($episode, 3);

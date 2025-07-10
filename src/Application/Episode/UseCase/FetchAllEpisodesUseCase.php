@@ -4,24 +4,41 @@ declare(strict_types=1);
 
 namespace App\Application\Episode\UseCase;
 
-use App\Application\Episode\DTO\EpisodeResponse;
+use App\Domain\Episode\Entity\Episode;
+use App\Domain\Episode\Repository\EpisodeRepositoryInterface;
 use App\Domain\Episode\Service\EpisodeServiceInterface;
+use DateTimeImmutable;
 
-class FetchAllEpisodesUseCase
+final readonly class FetchAllEpisodesUseCase
 {
     public function __construct(
-        private readonly EpisodeServiceInterface $episodeService,
+        private EpisodeServiceInterface $episodeService,
+        private EpisodeRepositoryInterface $episodeRepository,
     ) {
     }
 
-    /**
-     * @return list<EpisodeResponse>
-     */
-    public function execute(): array
+    public function execute(): int
     {
-        return array_map(
-            static fn (array $episode) => new EpisodeResponse($episode['id'], $episode['name'], $episode['date']),
-            $this->episodeService->fetchAll(),
-        );
+        $episodes = $this->episodeService->fetchAll();
+
+        if (empty($episodes)) {
+            return 0;
+        }
+
+        $this->episodeRepository->deleteAll();
+
+        foreach ($episodes as $episode) {
+            $entity = new Episode(
+                id: $episode['id'],
+                name: $episode['name'],
+                date: new DateTimeImmutable($episode['date']),
+            );
+
+            $this->episodeRepository->add($entity);
+        }
+
+        $this->episodeRepository->flush();
+
+        return count($episodes);
     }
 }

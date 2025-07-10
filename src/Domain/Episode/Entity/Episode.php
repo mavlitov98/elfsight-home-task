@@ -13,6 +13,9 @@ use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\Entity;
 use Symfony\Component\Serializer\Attribute\Ignore;
 
+/**
+ * @psalm-suppress ClassMustBeFinal
+ */
 #[Entity(repositoryClass: EpisodeRepository::class)]
 class Episode
 {

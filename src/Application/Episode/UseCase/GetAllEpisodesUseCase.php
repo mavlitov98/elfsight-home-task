@@ -8,10 +8,10 @@ use App\Application\Episode\DTO\EpisodeResponse;
 use App\Domain\Episode\Entity\Episode;
 use App\Domain\Episode\Repository\EpisodeRepositoryInterface;
 
-class GetAllEpisodesUseCase
+final readonly class GetAllEpisodesUseCase
 {
     public function __construct(
-        private readonly EpisodeRepositoryInterface $episodeRepository,
+        private EpisodeRepositoryInterface $episodeRepository,
     ) {
     }
 

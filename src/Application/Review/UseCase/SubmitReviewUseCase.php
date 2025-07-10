@@ -8,7 +8,7 @@ use App\Application\Review\DTO\ReviewRequest;
 use App\Application\Review\DTO\ReviewResponse;
 use App\Domain\Review\Service\ReviewServiceInterface;
 
-class SubmitReviewUseCase
+final readonly class SubmitReviewUseCase
 {
     public function __construct(
         private ReviewServiceInterface $reviewService,

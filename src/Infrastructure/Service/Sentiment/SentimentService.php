@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Infrastructure\Service;
+namespace App\Infrastructure\Service\Sentiment;
 
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\RequestOptions;
@@ -22,7 +22,8 @@ final readonly class SentimentService
             RequestOptions::JSON => ['text' => $text],
         ]);
 
-        $decoded = json_decode((string)$response->getBody(), true);
+        /** @var array{score: float} $decoded */
+        $decoded = json_decode((string) $response->getBody(), true);
 
         return $decoded['score'];
     }
